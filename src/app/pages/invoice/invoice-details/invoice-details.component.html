@@ -1,0 +1,268 @@
+<div fxLayout="row" fxLayoutAlign="center start" class="mt-4 h-100">
+  <div fxFlex="80" fxFlex.gt-sm="80">
+      <!-- Edit Invoice -->
+      <mat-card *ngIf="showEditOption" class="card">
+        <form [formGroup]="invoiceForm" (ngSubmit)="saveInvoice()">
+          <!-- order details -->
+          <div fxLayout="row wrap" fxLayoutAlign="space-between" class="order-info">
+            <div fxLayout="column" fxFlex="33.33%">
+              <h4><strong>Order Info</strong></h4>
+              <p>Order Number</p>
+              <mat-form-field>
+                <input
+                  formControlName="orderNo"
+                  matInput
+                  required
+                  placeholder="Order No."
+                />
+              </mat-form-field>
+            </div>
+      
+            <div fxLayout="column" fxFlex="33.33%" fxLayoutGap="20px">
+              <div>
+                <mat-radio-group
+                  formControlName="status"
+                  fxLayout="column"
+                  fxLayoutAlign="end end"
+                  fxLayoutGap="5px"
+                  required
+                >
+                  <mat-radio-button labelPosition="before" value="pending"
+                    >Pending</mat-radio-button
+                  >
+                  <mat-radio-button labelPosition="before" value="processing"
+                    >Processing</mat-radio-button
+                  >
+                  <mat-radio-button labelPosition="before" value="delivered"
+                    >Delivered</mat-radio-button
+                  >
+                </mat-radio-group>
+              </div>
+      
+              <div>
+                <p class="align-right">Order Date</p>
+                <mat-form-field fxFill>
+                  <input
+                    matInput
+                    [matDatepicker]="picker"
+                    required
+                    placeholder="Choose a date"
+                    formControlName="date"
+                  />
+                  <mat-datepicker-toggle
+                    matSuffix
+                    [for]="picker"
+                  ></mat-datepicker-toggle>
+                  <mat-datepicker #picker></mat-datepicker>
+                </mat-form-field>
+              </div>
+            </div>
+          </div>
+          <!-- end of order details -->
+      
+          <mat-divider></mat-divider>
+      
+          <!-- billing details -->
+          <div
+            class="billing-address"
+            fxLayout="row wrap"
+            fxLayoutAlign="space-between center"
+          >
+            <!-- seller -->
+            <div
+              formGroupName="seller"
+              fxLayout="column"
+              fxLayoutGap="20px"
+              fxFlex="33.33%"
+            >
+              <h4><strong>Bill From</strong></h4>
+              <mat-form-field>
+                <input
+                  formControlName="name"
+                  matInput
+                  required
+                  placeholder="Name of Seller"
+                />
+              </mat-form-field>
+              <mat-form-field>
+                <textarea
+                  formControlName="address"
+                  matInput
+                  required
+                  placeholder="Address of Seller"
+                ></textarea>
+              </mat-form-field>
+            </div>
+      
+            <!-- buyer -->
+            <div
+              formGroupName="buyer"
+              fxLayout="column"
+              fxLayoutAlign="center end"
+              fxLayoutGap="20px"
+              fxFlex="33.33%"
+            >
+              <h4><strong>Bill To</strong></h4>
+              <mat-form-field fxFill>
+                <input
+                  formControlName="name"
+                  matInput
+                  required
+                  placeholder="Name of Buyer"
+                />
+              </mat-form-field>
+              <mat-form-field fxFill>
+                <textarea
+                  formControlName="address"
+                  matInput
+                  required
+                  placeholder="Address of Buyer"
+                ></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+          <!-- end of billing details -->
+      
+          <!-- item form table -->
+          <div formArrayName="item" class="item-form-list" fxLayout="column">
+            <div
+              class="item-form-list-head-line"
+              fxLayout="row"
+              fxLayoutAlign="space-around center"
+            >
+              <p>#</p>
+              <p>Item Name</p>
+              <p>Unit Price</p>
+              <p>Unit</p>
+              <p>Cost</p>
+              <p></p>
+            </div>
+      
+            <div
+              *ngFor="let item of invoiceItemFormArray.controls; let i = index"
+              [formGroup]="item"
+              class="form-rows"
+              fxLayout="row"
+              fxLayoutAlign="space-around center"
+            >
+              <span>{{ i + 1 }}</span>
+              <mat-form-field>
+                <input
+                  formControlName="name"
+                  matInput
+                  placeholder="Item Name"
+                  #name
+                  required
+                />
+              </mat-form-field>
+              <mat-form-field>
+                <input
+                  type="number"
+                  formControlName="price"
+                  matInput
+                  placeholder="Item Price"
+                  #price
+                  required
+                />
+              </mat-form-field>
+              <mat-form-field>
+                <input
+                  type="number"
+                  formControlName="unit"
+                  matInput
+                  placeholder="Item Unit"
+                  #unit
+                  required
+                />
+              </mat-form-field>
+              <span>{{ unit.value * price.value }}</span>
+              <button mat-button type="button" (click)="deleteItemFromInvoice(i)">
+                Delete
+              </button>
+            </div>
+            <!-- end of item form table -->
+      
+            <!-- add item button -->
+            <div class="add-button">
+              <button mat-button type="button" (click)="addNewItem(emptyFormObject)">
+                Add Item
+              </button>
+            </div>
+          </div>
+      
+          <!-- total cost of item form -->
+          <div
+            class="form-total-cost"
+            fxLayout="column"
+            fxLayoutAlign="center end"
+            fxLayoutGap="10px"
+          >
+            <!-- sub total -->
+            <div fxLayout="row" fxLayoutAlign="space-between center">
+              <span>Sub Total:</span>
+              <span>{{ currency }}{{ cost }}</span>
+            </div>
+      
+            <!-- vat -->
+            <div fxLayout="row" fxLayoutAlign="space-between center">
+              <span>Vat(%):</span>
+              <div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="end center">
+                <mat-form-field>
+                  <input
+                    type="number"
+                    formControlName="vat"
+                    matInput
+                    placeholder="vat"
+                    required
+                  />
+                </mat-form-field>
+                <span>{{ currency }}{{ vat }}</span>
+              </div>
+            </div>
+      
+            <!-- grand total -->
+            <div fxLayout="row" fxLayoutAlign="space-between center">
+              <h5><strong>Grand Total: </strong></h5>
+              <div fxLayout="row" fxLayoutGap="10px" fxLayoutAlign="end center">
+                <mat-form-field>
+                  <input
+                    formControlName="currency"
+                    matInput
+                    placeholder="currency"
+                    required
+                  />
+                </mat-form-field>
+                <h5>
+                  <strong>{{ currency }}{{ cost + vat }}</strong>
+                </h5>
+              </div>
+            </div>
+          </div>
+          <!-- end of total cost -->
+
+          <div fxLayout="row" class=" mt-4" fxLayoutAlign="end center">
+            <button
+              mat-button
+              type="button"
+              class="ml-1 mr-1"
+              (click)="showEditOption = !showEditOption"
+            >
+              Cancel
+            </button>
+      
+            <button
+              color="primary"
+              mat-button
+              [type]="'submit'"
+              >Save</button
+            >
+          </div>
+        </form>
+      </mat-card>
+      <!-- end of edit invoice -->
+      
+      
+      <!-- invoice preview -->
+      <app-invoice-preview [invoice]="invoice" [currency]="currency" (showEditOption)="showEditOption = !showEditOption" [cost]="cost" [vat]="vat" *ngIf="!showEditOption" ></app-invoice-preview>
+  </div>
+</div>

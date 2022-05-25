@@ -1,0 +1,14 @@
+.card{
+    padding: 0 !important;
+    .header{
+        background: #3f51b5;
+        color: #fff !important;
+        padding: 10px;
+    }
+    mat-card-subtitle{
+        color: #fff !important;
+    }
+    mat-card-content{
+        padding: 16px;
+    }
+}
