@@ -1,2 +1,2 @@
 # Invoice
-Invoice generater with angular framwork
+Generate Invoice with angular framwork
